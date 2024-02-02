@@ -4,9 +4,9 @@ import HrLogin from '@/app/components/hr-login/hr-login';
 const Page = () => {
 
   return (
-<>
-<HrLogin/>
-</>
+    <>
+      <HrLogin />
+    </>
   )
 }
 

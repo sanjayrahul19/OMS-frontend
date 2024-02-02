@@ -1,16 +1,41 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from "next/image";
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { schema } from "../../validations/login-validation"
+import { schema } from "@/app/validations/login-validation"
+import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
+import useApiHook from '@/app/hooks/useApi';
+
+interface DataParams {
+    email: string,
+    password: string
+}
 
 const HrLogin = () => {
+
+    const [formData, setFormData] = useState<any>(null)
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
     });
+
+    const { responseData, loading, error } = useApiHook({
+        endpoint: '/hr/login',
+        method: 'POST',
+        data: formData,  // pass the form data to the hook
+    });
+
+    if(loading)return <p>Loading....</p>
+
+    if(error) return <p>{error}</p>
+
+    const onSubmit = (data: DataParams) => {
+        if (Object.keys(errors).length === 0) {
+            setFormData(data);
+        }
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -22,38 +47,39 @@ const HrLogin = () => {
                         width={500}
                         height={500}
                         alt="Picture of the author"
+                        priority={true}
+                        style={{ width: "100%", height: "auto" }}
                     />
                 </div>
-                <form action="" className="mx-auto mb-0 mt-8 max-w-md space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="mx-auto mb-0 mt-8 max-w-md space-y-4">
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="email" className="block text-md text-gray-700">
                             Email
                         </label>
-                        <div className="mt-1">
-                            <input
-                                type="email"
-                                name="email"
-                                id="email"
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="you@example.com"
-                                aria-describedby="email-description"
-                            />
+                        <div className="mt-1 relative">
+                            <input type="" id="email" className={`block rounded-lg w-full p-3 sm:text-sm focus:outline-none border  ${errors.email?.message ? 'border-red-500 text-red-500 ' : 'border-gray-300'}`} placeholder="you@example.com" aria-describedby="email-description" {...register("email")} />
+                            {errors.email?.message && (
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                                </div>
+                            )}
                         </div>
+                        {errors.email?.message && <p className="mt-2 text-sm text-red-600" id="email-error">{errors.email?.message}</p>}
                     </div>
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                            Email
+                        <label htmlFor="password" className="block text-md font-medium text-gray-700">
+                            Password
                         </label>
-                        <div className="mt-1">
-                            <input
-                                type="email"
-                                name="email"
-                                id="email"
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="you@example.com"
-                                aria-describedby="email-description"
+                        <div className="mt-1 relative">
+                            <input type="password" id="password" className={`block rounded-lg w-full p-3 sm:text-sm  focus:outline-none border ${errors.password?.message ? 'border-red-500 text-red-500 ' : 'border-gray-300'}`} aria-describedby="password-description" {...register("password")}
                             />
+                            {errors.password?.message && (
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                                </div>
+                            )}
                         </div>
+                        {errors.password?.message && <p className="mt-2 text-sm text-red-600">{errors.password?.message}</p>}
                     </div>
                     <div className="flex items-center justify-center">
                         <button type="submit" className="inline-block rounded-lg bg-blue-500 px-5 py-3 text-sm font-medium text-white">
