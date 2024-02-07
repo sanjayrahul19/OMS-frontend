@@ -1,5 +1,5 @@
 import React from 'react';
-import HrLogin from '@/app/components/hr-login/hr-login';
+import HrLogin from '@/components/hr-login/hr-login';
 
 const Page = () => {
 

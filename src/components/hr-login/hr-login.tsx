@@ -1,12 +1,14 @@
 'use client'
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from "next/image";
-import { useForm } from "react-hook-form"
-import { yupResolver } from "@hookform/resolvers/yup"
-import { schema } from "@/app/validations/login-validation"
-import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
-import useApiHook from '@/app/hooks/useApi';
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { schema } from "@/validations/login-validation";
+import { ExclamationCircleIcon } from '@heroicons/react/20/solid';
+import { post } from '@/service/api';
+import useLocalStorage from '@/hooks/useLocalStorage';
+
 
 interface DataParams {
     email: string,
@@ -14,26 +16,21 @@ interface DataParams {
 }
 
 const HrLogin = () => {
-
-    const [formData, setFormData] = useState<any>(null)
+    const [, setStoredValue] = useLocalStorage('sessionToken');
+    
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
     });
 
-    const { responseData, loading, error } = useApiHook({
-        endpoint: '/hr/login',
-        method: 'POST',
-        data: formData,  // pass the form data to the hook
-    });
-
-    if(loading)return <p>Loading....</p>
-
-    if(error) return <p>{error}</p>
-
-    const onSubmit = (data: DataParams) => {
-        if (Object.keys(errors).length === 0) {
-            setFormData(data);
+    const onSubmit = async (data: DataParams) => {
+        try {
+            const response = await post(`/hr/login`, data)
+            console.log(response)
+            setStoredValue(response?.session?.session_token)
+            console.log(response)
+        } catch (error) {
+            console.log(error)
         }
     }
 
