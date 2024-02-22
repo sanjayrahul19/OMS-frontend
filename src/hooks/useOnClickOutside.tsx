@@ -18,7 +18,8 @@ function useOnClickOutside(ref:RefObject<HTMLElement>, handler:(event: MouseEven
 
 export default useOnClickOutside
 
-// Usage
+// Usage:
+
 // const [open,setOpen]=useState(false)
 // const ref = useRef();
 // useOnClickOutside(ref, () => setIsOpen(false));

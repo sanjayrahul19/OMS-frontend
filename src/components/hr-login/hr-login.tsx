@@ -7,6 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { schema } from "@/validations/login-validation";
 import { ExclamationCircleIcon } from '@heroicons/react/20/solid';
 import { post } from '@/service/api';
+import useFetchData from "@/hooks/useApi"
 import useLocalStorage from '@/hooks/useLocalStorage';
 
 
@@ -16,8 +17,14 @@ interface DataParams {
 }
 
 const HrLogin = () => {
-    const [, setStoredValue] = useLocalStorage('sessionToken');
-    
+
+    const { data, loading, error } = useFetchData("/hr/list");
+    { loading && <div>Loading...</div> }
+
+    console.log(data)
+
+    const [, setSessionToken] = useLocalStorage('sessionToken');
+
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema)
@@ -27,7 +34,7 @@ const HrLogin = () => {
         try {
             const response = await post(`/hr/login`, data)
             console.log(response)
-            setStoredValue(response?.session?.session_token)
+            setSessionToken(response?.session?.session_token)
             console.log(response)
         } catch (error) {
             console.log(error)

@@ -1,23 +1,49 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { get } from '@/service/api/index';
+import axios, { AxiosResponse } from 'axios';
+import useLocalStorage from './useLocalStorage';
+
+interface Employee {
+  _id: string;
+  name: string;
+  email: string;
+  password: string;
+  status: number;
+  created_at: string;
+}
+
+interface ApiResponse {
+  status_code: number;
+  status: boolean;
+  message: string;
+  data: Employee[];
+}
 
 
-const useApi = (endpoint: string) => {
-  const [data, setData] = useState<any>(null);
+const useFetchData = (endpoint: string) => {
+  const [data, setData] = useState<ApiResponse|null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+
+const BASE_URL = 'http://localhost:8000/api/v1'; // Replace with your base URL
+
+  const [sessionToken] = useLocalStorage('sessionToken');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await get(endpoint);
-        setData(result);
+        if(!sessionToken)return
+        const response: AxiosResponse<any> = await axios.get(`${BASE_URL}${endpoint}`, {
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`
+          }
+        });
+        setData(response.data);
       } catch (error: any) {
-        console.error('API request error:', error);
+        console.error('Error during GET request:', error);
         setError(error.message || 'Failed to fetch data');
-        setLoading(false);
       } finally {
         setLoading(false);
       }
@@ -26,7 +52,20 @@ const useApi = (endpoint: string) => {
     fetchData();
   }, [endpoint]);
 
-  return { data, loading, error }
+  return { data, loading, error };
 };
 
-export default useApi;
+export default useFetchData;
+
+
+
+//HOW TO USE:
+
+// const endpoint = '/example';
+
+// const { data, loading, error } = useFetchData(endpoint);
+
+// {loading && <div>Loading...</div>}
+
+// {error && <div>Error: {error}</div>}
+      

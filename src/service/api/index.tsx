@@ -73,3 +73,4 @@ const del = async (endpoint: string,) => {
 };
 
 export { get, post, patch, del };
+

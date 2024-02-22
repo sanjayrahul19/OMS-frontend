@@ -3,7 +3,7 @@ import { encrypt } from '@/utils/encrypt';
 import { useState, useEffect } from 'react';
 
 // Custom hook for interacting with local storage
-function useLocalStorage(key: string,) {
+function useLocalStorage(key: string, initialValue?: any) {
     // Get initial value from local storage or use initialValue if not present
     const [storedValue, setStoredValue] = useState(() => {
         try {
@@ -11,11 +11,11 @@ function useLocalStorage(key: string,) {
             if (typeof window !== 'undefined') {
                 item = localStorage.getItem(key);
             }
-            return item ? decrypt(item) : null;
+            return item ? decrypt(item) : initialValue; // Use initialValue if item is not present
         } catch (error) {
             // If error, return null
             console.error(error);
-            return null;
+            return initialValue; // Return initialValue in case of error
         }
     });
 
@@ -35,5 +35,6 @@ function useLocalStorage(key: string,) {
     return [storedValue, setStoredValue];
 }
 
-
 export default useLocalStorage;
+
+
